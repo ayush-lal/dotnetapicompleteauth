@@ -1,0 +1,13 @@
+This package will vary for every database user
+
+1. dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+
+# postgres: Npgsql.EntityFrameworkCore.PostgreSQL
+# mysql: Pomelo.EntityFrameworkCore.MySql
+# sqlite: Microsoft.EntityFrameworkCore.Sqlite
+
+Rest of the packages are for every database user
+
+2. dotnet add package Microsoft.EntityFrameworkCore.Design
+3. dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore
+4. dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer

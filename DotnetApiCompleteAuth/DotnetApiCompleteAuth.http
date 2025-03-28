@@ -1,6 +1,6 @@
 @DotnetApiCompleteAuth_HostAddress = http://localhost:5298
 
-GET {{DotnetApiCompleteAuth_HostAddress}}/weatherforecast/
+GET {{DotnetApiCompleteAuth_HostAddress}}/api/people
 Accept: application/json
 
 ###
