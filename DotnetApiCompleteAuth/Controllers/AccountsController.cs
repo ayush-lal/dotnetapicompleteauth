@@ -85,5 +85,28 @@ namespace DotnetApiCompleteAuth.Controllers
 
         }
 
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(LoginModel loginModel)
+        {
+            try
+            {
+                var user = await _userManager.FindByNameAsync(loginModel.Username);
+                if (user == null)
+                {
+                    return BadRequest("Invalid username");
+                }
+                bool isValidPassword = await _userManager.CheckPasswordAsync(user, loginModel.Password);
+                if (isValidPassword == false)
+                {
+                    return BadRequest("Invalid Password");
+                }
+                return Ok("Login successfull");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
     }
 }
