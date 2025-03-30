@@ -1,5 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using DotnetApiCompleteAuth.Constants;
 using DotnetApiCompleteAuth.Models;
+using DotnetApiCompleteAuth.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +15,14 @@ namespace DotnetApiCompleteAuth.Controllers
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AccountsController> _logger;
+        private readonly ITokenService _tokenService;
 
-        public AccountsController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<AccountsController> logger)
+        public AccountsController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, ILogger<AccountsController> logger, ITokenService tokenService)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
+            _tokenService = tokenService;
         }
 
         [HttpPost("signup")]
@@ -91,16 +96,31 @@ namespace DotnetApiCompleteAuth.Controllers
             try
             {
                 var user = await _userManager.FindByNameAsync(loginModel.Username);
-                if (user == null)
+                if (user == null ||
+                !await _userManager.CheckPasswordAsync(user, loginModel.Password)
+                )
                 {
-                    return BadRequest("Invalid username");
+                    return Unauthorized();
                 }
-                bool isValidPassword = await _userManager.CheckPasswordAsync(user, loginModel.Password);
-                if (isValidPassword == false)
+
+                // creating the necessary claims
+                List<Claim> authClaims = [
+                        new (ClaimTypes.Name, user.UserName),
+                        new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                // unique id for token
+        ];
+
+                var userRoles = await _userManager.GetRolesAsync(user);
+
+                // adding roles to the claims. So that we can get the user role from the token.
+                foreach (var userRole in userRoles)
                 {
-                    return BadRequest("Invalid Password");
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
                 }
-                return Ok("Login successfull");
+
+                // generating access token
+                var token = _tokenService.GenerateAccessToken(authClaims);
+                return Ok(token);
             }
             catch (Exception ex)
             {
