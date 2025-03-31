@@ -9,4 +9,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
 
     }
+
+    public DbSet<TokenInfo> TokenInfos { get; set; }
 }

@@ -54,6 +54,37 @@ public class TokenService : ITokenService
 
     public ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
     {
-        throw new NotImplementedException();
+        // Define the token validation parameters used to validate the token.
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = _configuration["JWT:ValidAudience"],
+            ValidIssuer = _configuration["JWT:ValidIssuer"],
+            ValidateLifetime = false,
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey
+            (Encoding.UTF8.GetBytes(_configuration["JWT:secret"]))
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        // Validate the token and extract the claims principal and the security token.
+        var principal = tokenHandler.ValidateToken(accessToken, tokenValidationParameters, out SecurityToken securityToken);
+
+        // Cast the security token to a JwtSecurityToken for further validation.
+
+        var jwtSecurityToken = securityToken as JwtSecurityToken;
+
+        // Ensure the token is a valid JWT and uses the HmacSha256 signing algorithm.
+        // If no throw new SecurityTokenException
+        if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals
+        (SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
+
+        // return the principal
+        return principal;
     }
 }
