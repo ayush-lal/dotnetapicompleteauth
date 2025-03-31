@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
@@ -35,5 +36,24 @@ public class TokenService : ITokenService
         var token = tokenHandler.CreateToken(tokenDescriptor);
 
         return tokenHandler.WriteToken(token);
+    }
+
+    public string GenerateRefreshToken()
+    {
+        // Create a 32-byte array to hold cryptographically secure random bytes
+        var randomNumber = new byte[32];
+
+        // Use a cryptographically secure random number generator
+        // to fill the byte array with random values
+        using var randomNumberGenerator = RandomNumberGenerator.Create();
+        randomNumberGenerator.GetBytes(randomNumber);
+
+        // Convert the random bytes to a base64 encoded string
+        return Convert.ToBase64String(randomNumber);
+    }
+
+    public ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
+    {
+        throw new NotImplementedException();
     }
 }

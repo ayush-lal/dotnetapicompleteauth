@@ -108,7 +108,7 @@ namespace DotnetApiCompleteAuth.Controllers
                         new (ClaimTypes.Name, user.UserName),
                         new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                 // unique id for token
-        ];
+                ];
 
                 var userRoles = await _userManager.GetRolesAsync(user);
 
