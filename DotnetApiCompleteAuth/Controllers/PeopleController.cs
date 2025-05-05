@@ -10,7 +10,7 @@ namespace DotnetApiCompleteAuth.Controllers
     public class PeopleController : ControllerBase
     {
         [HttpGet]
-        [AllowAnonymous]
+        // [AllowAnonymous]
         public IActionResult GetPeople()
         {
             return Ok("People data");
